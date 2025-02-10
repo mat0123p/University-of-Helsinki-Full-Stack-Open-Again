@@ -1,34 +1,74 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import axios from 'axios'
+import { useState, useEffect } from 'react'
 
-function App() {
-  const [count, setCount] = useState(0)
+const ShowCountry = ({countriesToShow}) => {
+  return(
+    countriesToShow.map(country => 
+      <div key={country.name.common}>
+        <h1>{country.name.common}</h1>
+        <div>Capital {country.capital[0]}</div>
+        <div>Area {country.area}</div>
+        <h2>Languages</h2>
+        <ul>
+          {Object.values(country.languages).map(language => <li key={language}>{language}</li>)}
+        </ul>
+        <img src={country.flags.png} alt={country.name.common} width="180" height="100"/>
+        <h2>Weather in {country.capital[0]}</h2>
+
+      </div>
+  ))
+}
+
+const ShowCountries = ({countriesToShow, setNewFilter}) => {
+  return(
+    countriesToShow.map(country =>
+      <div key={country.name.common}>
+        {country.name.common}
+        <button onClick={() => setNewFilter(country.name.common)}>show</button>
+      </div>
+  ))
+}
+
+const App = () => {
+  const [countries, setCountries] = useState([])
+  const [newFilter, setNewFilter] = useState('')
+
+  useEffect(() => {
+    axios.get('https://restcountries.com/v3.1/all')
+    .then(response => {
+      setCountries(response.data)
+    })}, [])
+
+  const handleFilterChange = (event) => {
+    setNewFilter(event.target.value)
+  }
+
+  const countriesToShow = newFilter === '' ?
+    countries:
+    countries.filter(country => country.name.common.toLowerCase().includes(newFilter.toLowerCase()));
 
   return (
-    <>
+    <div>
+      <form>
+        <div>
+          find countries <input 
+          value = {newFilter}
+          onChange={handleFilterChange}
+          />
+        </div>
+      </form>
       <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        {
+          countriesToShow.length < 10 && countriesToShow.length > 1 && (<ShowCountries countriesToShow={countriesToShow} setNewFilter={setNewFilter} />)
+        }
+        {
+          countriesToShow.length > 10 && <div>Too many matches, specify another filter</div>
+        }
+        {
+          countriesToShow.length === 1 && (<ShowCountry countriesToShow={countriesToShow} />)
+        }
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    </div>
   )
 }
 
