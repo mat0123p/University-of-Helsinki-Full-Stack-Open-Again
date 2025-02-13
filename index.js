@@ -39,6 +39,10 @@ const unknownEndpoint = (req, res) => {
     res.status(404).send({error: 'unknown endpoint'});
 }
 
+app.get("/", (req, res) => {
+    res.send("<h1>Hello World!</h1>");
+});
+
 app.get('/api/persons', (req, res) => {
     res.json(persons).status(200);
 });
@@ -89,7 +93,7 @@ app.post('/api/persons', (req, res) => {
 
 app.use(unknownEndpoint);
 
-PORT = 3001 || process.env.PORT;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
