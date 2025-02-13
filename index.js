@@ -5,6 +5,7 @@ const cors = require('cors');
 const app = express();
 
 app.use(express.json());
+app.use(express.static('dist'));
 app.use(cors());
 
 morgan.token('body', (req, res) => JSON.stringify(req.body));
@@ -38,10 +39,6 @@ let persons =
 const unknownEndpoint = (req, res) => {
     res.status(404).send({error: 'unknown endpoint'});
 }
-
-app.get("/", (req, res) => {
-    res.send("<h1>Hello World!</h1>");
-});
 
 app.get('/api/persons', (req, res) => {
     res.json(persons).status(200);
