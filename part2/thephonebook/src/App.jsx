@@ -56,7 +56,7 @@ const Person =({personToShow, deletePhone}) => {
           <div key={person.name}>
             {person.name} {person.number}
             <button
-              onClick={() => deletePhone(person.id)}
+              onClick={() => deletePhone(person._id)}
             >delete</button>
           </div>
           
@@ -105,13 +105,17 @@ const App = () => {
 
       event.preventDefault()
       phoneService
-        .update(person.id, changedPerson)
+        .update(person._id, changedPerson)
         .then(response => {
           console.log(response)
-          setPersons(persons.map(person => person.id !== changedPerson.id ? person : changedPerson))
+          setPersons(persons.map(person => person._id !== changedPerson._id ? person : changedPerson))
           setNewName('')
           setNewNumber('')
 
+        })
+        .catch(error => {
+          console.log(error)
+          setMessage(`${error.response.data.error}`)
         })
 
         setMessage(`Updated ${newName} to ${newNumber}`)
@@ -125,7 +129,6 @@ const App = () => {
       const phoneObject = {
         name: newName,
         number: newNumber,
-        id: `${persons.length + 1}`
       }
   
       phoneService
@@ -136,7 +139,11 @@ const App = () => {
           setNewName('')
           setNewNumber('')
         })
-        
+        .catch(error => {
+          console.log(error)
+          setMessage(`${error.response.data.error}`)
+        })
+
         setMessage(`Added ${newName}`)
         setTimeout(() => {
           setMessage(null)
@@ -144,15 +151,15 @@ const App = () => {
     }
   }
 
-  const deletePhone = (id) => {
+  const deletePhone = (_id) => {
     if (window.confirm('Do you really want to delete this person?')) {
       phoneService
-        .deletePerson(id)
+        .deletePerson(_id)
         .then(response => {
           console.log(response)
-          setPersons(persons.filter(person => person.id !== id))
+          setPersons(persons.filter(person => person._id !== _id))
 
-          setMessage(`Deleted ${persons.find(person => person.id === id).name}`)
+          setMessage(`Deleted ${persons.find(person => person._id === _id).name}`)
           setTimeout(() => {
             setMessage(null)
           }, 2000)
@@ -160,7 +167,7 @@ const App = () => {
         })
         .catch(error => {
           console.log(error)
-          setMessage(`Information of ${persons.find(person => person.id === id).name} has already been removed from server`)
+          setMessage(`${error.response.data.error}`)
           setTimeout(() => {
             setMessage(null)
           }, 2000)
